@@ -1,1 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>WebRTC Audio Sharing</title>
+</head>
+<body>
+    <audio id="localAudio" autoplay></audio>
+    <audio id="remoteAudio" autoplay></audio>
+    <button id="startButton">Start Sharing</button>
+    <script>
+        const localAudio = document.getElementById('localAudio');
+const remoteAudio = document.getElementById('remoteAudio');
+const startButton = document.getElementById('startButton');
 
+// Initialize variables for WebRTC
+let localStream; // Local audio stream
+let remoteStream; // Remote audio stream
+let peerConnection; // Peer connection object
+
+// Configuration for ICE servers (you may need to provide actual server details)
+const iceServerConfig = {
+  iceServers: [
+    { urls: 'stun:stun.l.google.com:19302' },
+    // Add any TURN servers if needed
+  ],
+};
+
+// Create a peer connection when the Start Sharing button is clicked
+startButton.addEventListener('click', async () => {
+  try {
+    // Get user media (audio) and display it in the local audio element
+    localStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    localAudio.srcObject = localStream;
+
+    // Create a peer connection
+    peerConnection = new RTCPeerConnection(iceServerConfig);
+
+    // Add the local stream to the peer connection
+    localStream.getTracks().forEach((track) => {
+      peerConnection.addTrack(track, localStream);
+    });
+
+    // Set up event handlers for the peer connection
+    peerConnection.onicecandidate = handleICECandidate;
+    peerConnection.ontrack = handleRemoteTrack;
+
+    // Create an offer and set it as the local description
+    const offer = await peerConnection.createOffer();
+    await peerConnection.setLocalDescription(offer);
+
+    // Send the offer to the other peer (you need a signaling server for this)
+    // For simplicity, you can use a WebSocket to send the offer to the other user.
+
+    // Handle the response from the other peer when they answer the call
+    // This part involves exchanging SDP (Session Description Protocol) information.
+
+    // Handle ICE candidate exchange (stun and turn server information)
+
+  } catch (error) {
+    console.error('Error starting WebRTC:', error);
+  }
+});
+
+// Function to handle ICE candidate events
+function handleICECandidate(event) {
+  if (event.candidate) {
+    // Send the candidate to the other peer through the signaling server
+    // You need to implement the signaling server for this purpose.
+  }
+}
+
+// Function to handle remote audio track
+function handleRemoteTrack(event) {
+  // Display the remote audio stream in the remote audio element
+  remoteStream = event.streams[0];
+  remoteAudio.srcObject = remoteStream;
+}
+
+// Implement functions for handling answers, closing the connection, and other features as needed
+
+    </script>
+</body>
+</html>
